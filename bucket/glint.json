@@ -1,0 +1,88 @@
+{
+    "version": "0.4.0",
+    "description": "A fast file explorer for Windows: every folder's size, instant search across NTFS drives, and ripgrep search inside files.",
+    "homepage": "https://github.com/shadijhade/glint",
+    "license": "MIT",
+    "notes": [
+        "Update with 'scoop update glint'; the app links to new versions but doesn't install them itself.",
+        "Instant search and opening folders from File Explorer, once turned on in Settings, are taken out by 'scoop uninstall' too."
+    ],
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/shadijhade/glint/releases/download/v0.4.0/Glint_0.4.0_x64-setup.exe#/dl.7z",
+            "hash": "95b84c093997dce872e5f825fc6352ba905b9a74e33c30d1271361d63eee3fe1"
+        }
+    },
+    "pre_install": "Remove-Item \"$dir\\`$PLUGINSDIR\", \"$dir\\uninstall.exe\" -Recurse -Force -ErrorAction SilentlyContinue",
+    "uninstaller": {
+        "script": [
+            "# Instant search's service runs from Program Files; uninstalling (not updating) removes it, as the setup's uninstaller does.",
+            "if ($cmd -eq 'uninstall' -and (Get-Service ShadUIRipgrepIndex -ErrorAction SilentlyContinue)) {",
+            "    Start-Process \"$dir\\shadui-index.exe\" -ArgumentList uninstall -Verb RunAs -Wait",
+            "}",
+            "# File Explorer's 'Open in Glint' and opening folders in Glint by default (Settings > Files) run Glint through 'current'.",
+            "# Uninstalling (not updating) removes them where they run this copy, puts back what folders opened with before, and",
+            "# removes the keys above them if that leaves them empty, as the setup's uninstaller does. If that fails, the uninstall",
+            "# stops there, leaving Glint where they can still run it.",
+            "if ($cmd -eq 'uninstall') {",
+            "    $ErrorActionPreference = 'Stop'",
+            "    $verb = 'Glint'",
+            "    $exe = '\"' + (Split-Path $dir) + '\\current\\Glint.exe\"'",
+            "    $classes = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Software\\Classes', $true)",
+            "    $runs = {",
+            "        param($place)",
+            "        $command = $classes.OpenSubKey(\"$place\\$verb\\command\")",
+            "        if ($command) { \"$($command.GetValue(''))\".StartsWith($exe, 'OrdinalIgnoreCase'); $command.Close() }",
+            "    }",
+            "    $changed = $false",
+            "    if (& $runs 'Directory\\shell') {",
+            "        $folders = $classes.OpenSubKey('Directory\\shell', $true)",
+            "        if ($folders.GetValue('') -eq $verb) {",
+            "            $kept = $folders.OpenSubKey($verb)",
+            "            if ($kept.GetValueNames() -contains 'PreviousDefault') {",
+            "                $folders.SetValue('', $kept.GetValue('PreviousDefault', $null, 'DoNotExpandEnvironmentNames'), $kept.GetValueKind('PreviousDefault'))",
+            "            } else {",
+            "                $folders.DeleteValue('')",
+            "            }",
+            "            $kept.Close()",
+            "        }",
+            "        $folders.Close()",
+            "    }",
+            "    foreach ($place in 'Directory\\shell', 'Directory\\Background\\shell', 'Drive\\shell') {",
+            "        if (& $runs $place) {",
+            "            $classes.DeleteSubKeyTree(\"$place\\$verb\")",
+            "            $changed = $true",
+            "        }",
+            "    }",
+            "    if ($changed) {",
+            "        foreach ($parent in 'Directory\\Background\\shell', 'Directory\\Background', 'Directory\\shell', 'Directory', 'Drive\\shell', 'Drive') {",
+            "            $key = $classes.OpenSubKey($parent)",
+            "            if ($key) {",
+            "                $empty = $key.SubKeyCount -eq 0 -and $key.ValueCount -eq 0",
+            "                $key.Close()",
+            "                if ($empty) { $classes.DeleteSubKey($parent) }",
+            "            }",
+            "        }",
+            "        # SHCNE_ASSOCCHANGED: File Explorer reads them again.",
+            "        Add-Type -Namespace GlintScoop -Name Shell -MemberDefinition '[DllImport(\"shell32.dll\")] public static extern void SHChangeNotify(int eventId, uint flags, IntPtr item1, IntPtr item2);'",
+            "        [GlintScoop.Shell]::SHChangeNotify(0x08000000, 0, [IntPtr]::Zero, [IntPtr]::Zero)",
+            "    }",
+            "    $classes.Close()",
+            "}"
+        ]
+    },
+    "shortcuts": [
+        [
+            "Glint.exe",
+            "Glint"
+        ]
+    ],
+    "checkver": "github",
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/shadijhade/glint/releases/download/v$version/Glint_$version_x64-setup.exe#/dl.7z"
+            }
+        }
+    }
+}
