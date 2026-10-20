@@ -1,5 +1,5 @@
 {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "description": "A fast file explorer for Windows: every folder's size, instant search across NTFS drives, and ripgrep search inside files.",
     "homepage": "https://github.com/shadijhade/glint",
     "license": "MIT",
@@ -9,8 +9,8 @@
     ],
     "architecture": {
         "64bit": {
-            "url": "https://github.com/shadijhade/glint/releases/download/v0.4.0/Glint_0.4.0_x64-setup.exe#/dl.7z",
-            "hash": "95b84c093997dce872e5f825fc6352ba905b9a74e33c30d1271361d63eee3fe1"
+            "url": "https://github.com/shadijhade/glint/releases/download/v0.5.0/Glint_0.5.0_x64-setup.exe#/dl.7z",
+            "hash": "3cf94d6cedf9f6ae39a0eb68ece397f524d32b4e19e7bc64ea89bbb205a59c64"
         }
     },
     "pre_install": "Remove-Item \"$dir\\`$PLUGINSDIR\", \"$dir\\uninstall.exe\" -Recurse -Force -ErrorAction SilentlyContinue",
