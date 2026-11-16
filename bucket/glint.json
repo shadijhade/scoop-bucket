@@ -1,16 +1,16 @@
 {
-    "version": "0.13.1",
+    "version": "0.13.2",
     "description": "A fast file explorer for Windows: every folder's size, instant search across NTFS drives, and ripgrep search inside files.",
     "homepage": "https://github.com/shadijhade/glint",
     "license": "MIT",
     "notes": [
-        "Update with 'scoop update glint'; the app links to new versions but doesn't install them itself.",
+        "Glint updates itself through Scoop when you quit it (Settings > About), or run 'scoop update glint'.",
         "Instant search, opening folders from File Explorer and starting with Windows, once turned on in Settings, are taken out by 'scoop uninstall' too."
     ],
     "architecture": {
         "64bit": {
-            "url": "https://github.com/shadijhade/glint/releases/download/v0.13.1/Glint_0.13.1_x64-setup.exe#/dl.7z",
-            "hash": "f0a83e64c55708ec7f203895c091e236f321c1e2165c364dfaffbff363563f8f"
+            "url": "https://github.com/shadijhade/glint/releases/download/v0.13.2/Glint_0.13.2_x64-setup.exe#/dl.7z",
+            "hash": "ebce83f4b6d09b1212504fd41adc960b5f7d9a5e408af09d4279e491c31be409"
         }
     },
     "pre_install": "Remove-Item \"$dir\\`$PLUGINSDIR\", \"$dir\\`$TEMP\", \"$dir\\uninstall.exe\" -Recurse -Force -ErrorAction SilentlyContinue",
