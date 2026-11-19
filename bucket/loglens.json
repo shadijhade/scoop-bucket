@@ -1,0 +1,27 @@
+{
+    "version": "0.1.0",
+    "description": "Fast desktop log viewer and analyzer for Serilog text logs",
+    "homepage": "https://github.com/shadijhade/loglens",
+    "license": "MIT",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/shadijhade/loglens/releases/download/v0.1.0/loglens.exe",
+            "hash": "dcc948ad6b935eeb097d01b6da1cfa47781df2c1032831c7f55182b3f9a6c689"
+        }
+    },
+    "bin": "loglens.exe",
+    "shortcuts": [
+        [
+            "loglens.exe",
+            "LogLens"
+        ]
+    ],
+    "checkver": "github",
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/shadijhade/loglens/releases/download/v$version/loglens.exe"
+            }
+        }
+    }
+}
