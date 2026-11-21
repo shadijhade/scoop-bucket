@@ -1,5 +1,5 @@
 {
-    "version": "0.14.0",
+    "version": "0.15.0",
     "description": "A fast file explorer for Windows: every folder's size, instant search across NTFS drives, and ripgrep search inside files.",
     "homepage": "https://github.com/shadijhade/glint",
     "license": "MIT",
@@ -9,8 +9,8 @@
     ],
     "architecture": {
         "64bit": {
-            "url": "https://github.com/shadijhade/glint/releases/download/v0.14.0/Glint_0.14.0_x64-setup.exe#/dl.7z",
-            "hash": "c91370e6b68d5fb73fbfeb49a8aab4700536f20448a07444a6475ab9ceafe4b9"
+            "url": "https://github.com/shadijhade/glint/releases/download/v0.15.0/Glint_0.15.0_x64-setup.exe#/dl.7z",
+            "hash": "c1cbef15a7a9ae305edd24f9a88141bc07454e06bdaf58be4a169751cbb05bc0"
         }
     },
     "pre_install": "Remove-Item \"$dir\\`$PLUGINSDIR\", \"$dir\\`$TEMP\", \"$dir\\uninstall.exe\" -Recurse -Force -ErrorAction SilentlyContinue",
@@ -20,6 +20,8 @@
             "if ($cmd -eq 'uninstall' -and (Get-Service ShadUIRipgrepIndex -ErrorAction SilentlyContinue)) {",
             "    Start-Process \"$dir\\shadui-index.exe\" -ArgumentList uninstall -Verb RunAs -Wait",
             "}",
+            "# Live Portals and the remotes shown in File Explorer: no program would be left to fill their placeholders in.",
+            "if ($cmd -eq 'uninstall') { Start-Process \"$dir\\Glint.exe\" -ArgumentList 'portals', 'remove' -Wait }",
             "# File Explorer's 'Open in Glint', opening folders in Glint by default and Win+E (Settings > Files) run Glint through 'current'.",
             "# Uninstalling (not updating) removes them where they run this copy, puts back what folders opened with before, and",
             "# removes the keys above them if that leaves them empty, as the setup's uninstaller does. If that fails, the uninstall",
@@ -74,6 +76,13 @@
             "        # SHCNE_ASSOCCHANGED: File Explorer reads them again.",
             "        Add-Type -Namespace GlintScoop -Name Shell -MemberDefinition '[DllImport(\"shell32.dll\")] public static extern void SHChangeNotify(int eventId, uint flags, IntPtr item1, IntPtr item2);'",
             "        [GlintScoop.Shell]::SHChangeNotify(0x08000000, 0, [IntPtr]::Zero, [IntPtr]::Zero)",
+            "    }",
+            "    # glint:// links (permalinks.rs), where they open this copy.",
+            "    $command = $classes.OpenSubKey('glint\\shell\\open\\command')",
+            "    if ($command) {",
+            "        $ours = \"$($command.GetValue(''))\".StartsWith($exe, 'OrdinalIgnoreCase')",
+            "        $command.Close()",
+            "        if ($ours) { $classes.DeleteSubKeyTree('glint') }",
             "    }",
             "    $classes.Close()",
             "    # Starting with Windows (Settings > Quick search), where it starts this copy.",
